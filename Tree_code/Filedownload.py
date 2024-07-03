@@ -51,11 +51,11 @@ def getFileFromArchive(id,name,type,client):
     try:
         con = db_connection()
         cursor = con.cursor()
-        select_qry = """select "12" from dual""" # need to check this
+        select_qry = """select 12 from dual""" # need to check this
         cursor.execute(select_qry) # in oracle pass dic in mysql and other pass tuple
         temp = cursor.fetchone() # list
         request_id = temp[0]
-        print("REQUEST ID")
+        print("                      REQUEST ID")
         print(request_id)
         return request_id
     except cx_Oracle.DatabaseError as e:
