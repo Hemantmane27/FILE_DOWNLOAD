@@ -61,7 +61,7 @@ def getFileFromArchive(id,name,type,client):
     except cx_Oracle.DatabaseError as e:
         print("Problem connecting to Oracle", e)
         return {
-            "status": "Failed to find request id"
+            "status": "Failed to find request id "
         }
 
 
