@@ -21,9 +21,9 @@ def verify_item(File_id_info: str):
     Filename = str(splitline[1])
     Filetype = str(splitline[2])
     Clientname = str(splitline[3])
-    print("HEMANT ")
+    
     # Verify received data field Function --- currently not using pydantic class
-    validateData(Fileid,Filename,Filetype,Clientname)
+    #validateData(Fileid,Filename,Filetype,Clientname)
 
     # call function to search file from fileinfo1_Arch_path
     returnfile = getFileFromArchive(Fileid,Filename,Filetype,Clientname)
@@ -40,7 +40,7 @@ def verify_item(File_id_info: str):
 
 app.include_router(router)
 
-def validateData(id,name,type,client):
+def validateData(id,name,type,client): # WILL DO THIS CHANGES IN UPCOMING DAYS
     print(str(id))
     print(str(name))
     print(str(type))
@@ -48,16 +48,17 @@ def validateData(id,name,type,client):
 
 def getFileFromArchive(id,name,type,client):
     print("Fileinfo1_arch_path")
+
     try:
         con = db_connection()
         cursor = con.cursor()
-        select_qry = """select 12 from dual""" # need to check this
-        cursor.execute(select_qry) # in oracle pass dic in mysql and other pass tuple
-        temp = cursor.fetchone() # list
-        request_id = temp[0]
-        print("                      REQUEST ID")
-        print(request_id)
-        return request_id
+        
+        select_qry = """select archived_path from fileinfo1_arch_path where fileid = :fi and file_type = :ft""" # need to check this
+        cursor.execute(select_qry, {"fi": id,"ft": type}) # in oracle pass dic in mysql and other pass tuple
+        temp = cursor.fetchone()
+        file_path = temp[0]
+                
+        return file_path
     except cx_Oracle.DatabaseError as e:
         print("Problem connecting to Oracle", e)
         return {
