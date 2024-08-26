@@ -5,6 +5,7 @@ from fastapi import Header, status
 from fastapi import APIRouter
 from Tree_code import Db_connect
 import cx_Oracle
+import os.path
 
 conn = ""
 cursor = ""
@@ -28,11 +29,12 @@ def verify_item(File_id_info: str):
     # call function to search file from fileinfo1_Arch_path
     returnfile = getFileFromArchive(Fileid,Filename,Filetype,Clientname)
     print(str(returnfile))
-    # call function to send response as file 
-    #sendFile(returnfile)
-    # Create data set to support above program
-
-    # find out how it will capture response for file not found
+    #if os.path.isfile(returnfile):
+    return returnfile
+    #else:
+     #   print("Incorrect file path")
+    
+    
 
 
 
@@ -66,9 +68,11 @@ def getFileFromArchive(id,name,type,client):
         }
 
 
-def sendFile(returnfile):
-    print("response code")
-
+#def sendFile(returnfile):
+ #   print(returnfile)
+    #return FileResponse(returnfile, media_type='application/octet-stream',status_code=200)
+    #return FileResponse("CDGBRCNAREDU63896.gz", media_type='application/octet-stream')
+    #return FileResponse("deer.jpg", media_type='application/octet-stream')
 
 def db_connection():
     db_arr = Db_connect.dbconfig()
