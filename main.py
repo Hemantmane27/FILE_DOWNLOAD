@@ -6,6 +6,8 @@ from fastapi import Header, status
 from fastapi import APIRouter
 from Tree_code import Db_connect
 import cx_Oracle
+import os
+import re
 
 conn = ""
 cursor = ""
@@ -25,10 +27,19 @@ def verify_item(File_id_info: str):
 
     # call function to search file from fileinfo1_Arch_path
     returnfile = getFileFromArchive(Fileid,Filename,Filetype,Clientname)
-    #print(str(returnfile))
-    #if os.path.isfile(returnfile):
+       
+    if str(returnfile)  == '0':
+        
+        return {
+            "Error" : "File Not Found",
+            "Filename" : Filename,
+            "File ID" : Fileid
+        }
     
-    return FileResponse(returnfile, media_type='application/octet-stream',filename='TEST_FILE.GO')
+    else:
+               
+        return FileResponse(returnfile, media_type='application/octet-stream',filename=Filename)
+        
     #return returnfile
     #else:
      #   print("Incorrect file path")
@@ -43,6 +54,8 @@ def validateData(id,name,type,client): # WILL DO THIS CHANGES IN UPCOMING DAYS
     print(str(type))
     print(str(client))
 
+
+
 def getFileFromArchive(id,name,type,client):
     
     try:
@@ -53,8 +66,13 @@ def getFileFromArchive(id,name,type,client):
         cursor.execute(select_qry, {"fi": id,"ft": type}) # in oracle pass dic in mysql and other pass tuple
         temp = cursor.fetchone()
         file_path = temp[0]
-        print(file_path)        
-        return file_path
+        if os.path.exists(file_path):
+            return file_path
+        else:
+            print("File not found")
+            print(file_path)
+            return 0
+
         
 
     except cx_Oracle.DatabaseError as e:
