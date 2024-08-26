@@ -2,19 +2,25 @@ from fastapi import FastAPI
 import uvicorn
 #from Tree_code import Filedownload
 from fastapi.responses import FileResponse
+from fastapi.responses import HTMLResponse
 from fastapi import Header, status
-from fastapi import APIRouter
 from Tree_code import Db_connect
 import cx_Oracle
 import os
-import re
+root = os.path.dirname(os.path.abspath(__file__))
 
 conn = ""
 cursor = ""
 app = FastAPI()
 
+@app.get("/",status_code=status.HTTP_200_OK,response_class=HTMLResponse)
+def main():
+    with open(os.path.join(root, 'index.html')) as fh:
+        data = fh.read()
+    return HTMLResponse(content=data, media_type="text/html")
+
 #https://apidch.dev.nextgen.local/FILEDOWNLOADER/30248326-CDDCPE1AAZOR00006-ORIG-AAZOR
-@app.get("/FILEDOWNLOADER/{File_id_info}", status_code=status.HTTP_201_CREATED)
+@app.get("/FILEDOWNLOADER/{File_id_info}", status_code=status.HTTP_201_CREATED,response_class=HTMLResponse)
 def verify_item(File_id_info: str):
     splitline = File_id_info.split("-")
     Fileid = str(splitline[0])
@@ -29,30 +35,19 @@ def verify_item(File_id_info: str):
     returnfile = getFileFromArchive(Fileid,Filename,Filetype,Clientname)
        
     if str(returnfile)  == '0':
-        
-        return {
-            "Error" : "File Not Found",
-            "Filename" : Filename,
-            "File ID" : Fileid
-        }
-    
+          
+        #response = HTMLResponse(content=html_content,status_code=400)
+        with open(os.path.join(root, 'FileNotFound.html')) as fh:
+            data = fh.read()
+        return HTMLResponse(content=data, media_type="text/html",status_code=400)
+        #return response
     else:
-               
-        return FileResponse(returnfile, media_type='application/octet-stream',filename=Filename)
-        
-    #return returnfile
-    #else:
-     #   print("Incorrect file path")
+        File1 = Filename+".gz"
+        return FileResponse(returnfile, media_type='application/octet-stream',filename=File1,status_code=201) 
+       
+      
     
     
-
-
-
-def validateData(id,name,type,client): # WILL DO THIS CHANGES IN UPCOMING DAYS
-    print(str(id))
-    print(str(name))
-    print(str(type))
-    print(str(client))
 
 
 
@@ -81,12 +76,6 @@ def getFileFromArchive(id,name,type,client):
             "status": "Failed to find request id "
         }
 
-
-#def sendFile(returnfile):
- #   print(returnfile)
-    #return FileResponse(returnfile, media_type='application/octet-stream',status_code=200)
-    #return FileResponse("CDGBRCNAREDU63896.gz", media_type='application/octet-stream')
-    #return FileResponse("deer.jpg", media_type='application/octet-stream')
 
 def db_connection():
     db_arr = Db_connect.dbconfig()
@@ -120,9 +109,7 @@ def closecursor(cursor):
 uvicorn.run(app, port=8080,host = '0.0.0.0')
 
 #---------------------------- Ignore below part -------------------------------
-#@app.get("/")
-#def index():
- #   return {"Hello": "World"}
+
 
 #@app.get("/deer")
 #def deer():
@@ -136,3 +123,11 @@ uvicorn.run(app, port=8080,host = '0.0.0.0')
 ##@app.get("/binary")
 ##def binary():
   #  return FileResponse("CDISLNOGBRVF08966.GO", media_type='application/octet-stream')
+
+
+
+#def validateData(id,name,type,client): # WILL DO THIS CHANGES IN UPCOMING DAYS
+#    print(str(id))
+#    print(str(name))
+#    print(str(type))
+#    print(str(client))
